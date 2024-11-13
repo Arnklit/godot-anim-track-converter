@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://by51ls57g64fy"]
+
+[ext_resource type="Texture2D" uid="uid://cfbpb6kd6hf7y" path="res://icon.svg" id="1_f24vu"]
+
+[sub_resource type="Animation" id="Animation_ac4qo"]
+resource_name = "new_animation"
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_0eggs"]
+_data = {
+"new_animation": SubResource("Animation_ac4qo")
+}
+
+[node name="TestScene" type="Node2D"]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(423, 272)
+texture = ExtResource("1_f24vu")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_0eggs")
+}
