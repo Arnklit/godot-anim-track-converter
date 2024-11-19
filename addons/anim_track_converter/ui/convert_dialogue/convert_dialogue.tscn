@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" path="res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.gd" id="1_rkcsd"]
 
-[node name="ConvertDialogue" type="Popup"]
+[node name="ConvertDialogue" type="AcceptDialog"]
 title = "Convert Tracks to Bezier..."
-visible = true
+size = Vector2i(400, 400)
+ok_button_text = "Convert"
 script = ExtResource("1_rkcsd")

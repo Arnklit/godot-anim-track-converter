@@ -1,21 +1,24 @@
 # Utility class for parsing and hacking the editor
 
 ## Find menu button to add option to
-static func find_edit_menu_button(node: Node) -> MenuButton:
-	print("find_edit_menu_button")
+static func find_animation_menu_button(node: Node) -> MenuButton:
 	var animation_editor := find_editor_control_with_class(node, "AnimationPlayerEditor")
 	if animation_editor:
 		return find_editor_control_with_class(
 			animation_editor, 
 			"MenuButton", 
-			func(node): return node.text == "Edit"
+			func(node): return node.text == "Animation"
 		)
 
 	return null
 
 
 ## General utility to find a control in the editor using an iterative search
-static func find_editor_control_with_class( base: Control, p_class_name: StringName, condition := func(node: Node): return true) -> Node:
+static func find_editor_control_with_class(
+		base: Control, 
+		p_class_name: StringName,
+		condition := func(node: Node): return true
+	) -> Node:
 	if base.get_class() == p_class_name and condition.call(base):
 		return base
 		
@@ -23,7 +26,7 @@ static func find_editor_control_with_class( base: Control, p_class_name: StringN
 		if not child is Control:
 			continue
 			
-		var found = find_editor_control_with_class(child, p_class_name, condition)
+		var found = find_editor_control_with_class(child, p_class_name)
 		if found:
 			return found
 		

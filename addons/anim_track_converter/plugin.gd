@@ -17,9 +17,10 @@ func _enter_tree() -> void:
 	# Create dialogue
 	convert_dialogue = load("res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.tscn").instantiate()
 	get_editor_interface().get_base_control().add_child(convert_dialogue)
+	print("in enter tree of plugin")
 	convert_dialogue.init(self)
 	# Create menu button
-	_add_convert_option(func(): 
+	_add_convert_option(func():
 		convert_dialogue.popup_centered()
 		convert_dialogue.reset_size()
 	)
@@ -76,12 +77,16 @@ const TOOL_CONVERT := 999
 const TOOL_ANIM_LIBRARY := 1
 
 func _add_convert_option(on_pressed: Callable):
+	print("OK is this run? _add_convert_option")
 	var base_control := get_editor_interface().get_base_control()
 	if not edit_menu_button:
 		edit_menu_button = EditorUtil.find_edit_menu_button(base_control)
 	if not edit_menu_button:
 		push_error("Could not find Edit menu button. Please report this issue.")
 		return
+	
+	print("what was found for edit_menu_button?")
+	print(edit_menu_button.text)
 	
 	### WE DONT NEED THIS AS WE ADD TO THE END
 	
