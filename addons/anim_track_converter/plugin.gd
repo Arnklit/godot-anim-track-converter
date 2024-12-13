@@ -20,10 +20,18 @@ func _enter_tree() -> void:
 	print("in enter tree of plugin")
 	convert_dialogue.init(self)
 	# Create menu button
-	_add_convert_option(func():
-		convert_dialogue.popup_centered()
-		convert_dialogue.reset_size()
-	)
+	_add_convert_option(_pop_up_convert)
+
+
+func _pop_up_convert() -> void:
+	convert_dialogue.popup_centered()
+	convert_dialogue.reset_size()
+	var troot := convert_dialogue.track_convert_select.create_item()
+	var it := convert_dialogue.track_convert_select.create_item(troot)
+	it.set_editable(0, true)
+	it.set_selectable(0, true)
+	it.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
+	it.set_text(0, "Test item")
 
 
 func _exit_tree() -> void:

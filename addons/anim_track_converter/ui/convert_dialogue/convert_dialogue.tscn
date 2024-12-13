@@ -4,6 +4,18 @@
 
 [node name="ConvertDialogue" type="AcceptDialog"]
 title = "Convert Tracks to Bezier..."
+position = Vector2i(0, 36)
 size = Vector2i(400, 400)
 ok_button_text = "Convert"
 script = ExtResource("1_rkcsd")
+
+[node name="TrackConvertVbox" type="VBoxContainer" parent="."]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 392.0
+offset_bottom = 351.0
+
+[node name="TrackConvertSelect" type="Tree" parent="TrackConvertVbox"]
+auto_translate_mode = 2
+layout_mode = 2
+size_flags_vertical = 3
