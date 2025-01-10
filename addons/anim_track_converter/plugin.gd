@@ -20,18 +20,71 @@ func _enter_tree() -> void:
 	print("in enter tree of plugin")
 	convert_dialogue.init(self)
 	# Create menu button
-	_add_convert_option(_pop_up_convert)
+	_add_convert_option()
 
 
 func _pop_up_convert() -> void:
 	convert_dialogue.popup_centered()
-	convert_dialogue.reset_size()
-	var troot := convert_dialogue.track_convert_select.create_item()
-	var it := convert_dialogue.track_convert_select.create_item(troot)
-	it.set_editable(0, true)
-	it.set_selectable(0, true)
-	it.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
-	it.set_text(0, "Test item")
+	convert_dialogue.track_convert_select.clear()
+	print("trying to get the assigned animation")
+	print(get_anim_player().assigned_animation)
+	print("trying to get the assigned animation")
+	convert_dialogue.track_convert_select = _generate_track_list(get_anim_player().get_animation(get_anim_player().assigned_animation))
+
+
+func _generate_track_list(animation: Animation) -> Tree:
+	
+	var root: Node = get_node(get_anim_player().root_node) ### EHHH I DON'T KNOW IF THAT'S RIGHT
+	
+	var track_convert_select := Tree.new()
+	
+	var troot: TreeItem = track_convert_select.create_item()
+	
+	for i in animation.get_track_count():
+		if animation.track_get_key_count(i) == 0:
+			continue
+		
+		var path: NodePath = animation.track_get_path(i)
+		var node: Node = null
+		
+		if root:
+			node = root.get_node_or_null(path)
+		
+		var text: String
+		# ICON STUFF TODO
+		# PATH STUFF TODO
+		
+		var track_type: String
+		match animation.track_get_type(i):
+			Animation.TYPE_POSITION_3D:
+				track_type = "Position"
+			Animation.TYPE_ROTATION_3D:
+				track_type = "Rotation"
+			Animation.TYPE_SCALE_3D:
+				track_type = "Scale"
+			Animation.TYPE_BLEND_SHAPE:
+				track_type = "BlendShape"
+			Animation.TYPE_METHOD:
+				continue
+			Animation.TYPE_BEZIER:
+				continue
+			Animation.TYPE_AUDIO:
+				continue
+			Animation.TYPE_ANIMATION:
+				continue
+		
+		if !track_type.is_empty():
+			text += track_type
+		
+		var it: TreeItem = track_convert_select.create_item(troot)
+		it.set_editable(0, true)
+		it.set_selectable(0, true)
+		it.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
+		# TODO set icon
+		it.set_text(0, text)
+		# TODO set meta data
+	
+	return track_convert_select
 
 
 func _exit_tree() -> void:
@@ -84,7 +137,7 @@ func get_anim_player() -> AnimationPlayer:
 const TOOL_CONVERT := 999
 const TOOL_ANIM_LIBRARY := 1
 
-func _add_convert_option(on_pressed: Callable):
+func _add_convert_option():
 	var base_control := get_editor_interface().get_base_control()
 	if not edit_menu_button:
 		edit_menu_button = EditorUtil.find_edit_menu_button(base_control)
@@ -120,4 +173,4 @@ func _remove_convert_option():
 
 func _on_menu_button_pressed(id: int):
 	if id == TOOL_CONVERT:
-		convert_dialogue.popup_centered()
+		_pop_up_convert()

@@ -19,3 +19,4 @@ offset_bottom = 351.0
 auto_translate_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
+hide_root = true

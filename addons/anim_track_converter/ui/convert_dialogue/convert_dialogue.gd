@@ -18,13 +18,13 @@ func init(editor_plugin: CustomEditorPlugin) -> void:
 	_editor_plugin = editor_plugin
 	_editor_interface = editor_plugin.get_editor_interface()
 	_anim_track_converter = AnimTrackConverter.new(_editor_plugin)
-	#var troot := _track_convert_select.create_item()
-	#var it := _track_convert_select.create_item(troot)
+
+	#var troot := track_convert_select.create_item()
+	#var it := track_convert_select.create_item(troot)
 	#it.set_editable(0, true)
 	#it.set_selectable(0, true)
 	#it.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 	#it.set_text(0, "Test item")
-	#node_select.init(_editor_plugin)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
