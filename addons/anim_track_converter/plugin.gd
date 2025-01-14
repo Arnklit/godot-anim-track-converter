@@ -2,6 +2,7 @@
 extends EditorPlugin
 
 const ConvertDialogue := preload("ui/convert_dialogue/convert_dialogue.gd")
+const AnimTrackConvert := preload("res://addons/anim_track_converter/lib/anim_track_converter.gd")
 
 const EditorUtil := preload("lib/editor_util.gd")
 
@@ -13,11 +14,17 @@ var _last_anim_player: AnimationPlayer
 const SCENE_TREE_IDX := 0
 var _scene_tree: Tree
 
+enum {
+		HANDLE_MODE_FREE,
+		HANDLE_MODE_LINEAR,
+		HANDLE_MODE_BALANCED,
+		HANDLE_MODE_MIRRORED,
+}
+
 func _enter_tree() -> void:
 	# Create dialogue
 	convert_dialogue = load("res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.tscn").instantiate()
 	get_editor_interface().get_base_control().add_child(convert_dialogue)
-	print("in enter tree of plugin")
 	convert_dialogue.init(self)
 	# Create menu button
 	_add_convert_option()
@@ -26,66 +33,64 @@ func _enter_tree() -> void:
 func _pop_up_convert() -> void:
 	convert_dialogue.popup_centered()
 	convert_dialogue.track_convert_select.clear()
-	print("trying to get the assigned animation")
-	print(get_anim_player().assigned_animation)
-	print("trying to get the assigned animation")
-	convert_dialogue.track_convert_select = _generate_track_list(get_anim_player().get_animation(get_anim_player().assigned_animation))
+	convert_dialogue.track_convert_select.generate_track_list(get_anim_player().get_animation(get_anim_player().assigned_animation), get_anim_player())
+	if not convert_dialogue.confirmed.is_connected(_convert):
+		convert_dialogue.confirmed.connect(_convert)
 
 
-func _generate_track_list(animation: Animation) -> Tree:
+func _convert() -> void:
+	# no undo redo for now
+	var player : AnimationPlayer = _last_anim_player
 	
-	var root: Node = get_node(get_anim_player().root_node) ### EHHH I DON'T KNOW IF THAT'S RIGHT
+	## REDO UNDO by making a copy of these instead and assigning them with an undo redo action
+	var anim_name = player.assigned_animation
 	
-	var track_convert_select := Tree.new()
+	var lib := player.get_animation_library(player.find_animation_library(player.get_animation(anim_name)))
+	var reset_lib := player.get_animation_library(player.find_animation_library(player.get_animation(StringName("RESET"))))
 	
-	var troot: TreeItem = track_convert_select.create_item()
+	var animation: Animation = player.get_animation(anim_name)#.duplicate()
+	var reset_animation: Animation = player.get_animation(StringName("RESET"))#.duplicate()
 	
-	for i in animation.get_track_count():
-		if animation.track_get_key_count(i) == 0:
-			continue
+	var tree_root : TreeItem = convert_dialogue.track_convert_select.get_root()
+	if tree_root:
+		var new_track_count := animation.get_track_count()
+		var new_reset_track_count := reset_animation.get_track_count()
+		var it = tree_root.get_first_child()
+		while it:
+			var md: Dictionary = it.get_metadata(0)
+			var idx: int = md["track_idx"]
+			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
+				var handle_mode = HANDLE_MODE_LINEAR
+				
+				## we need to add the options for the different handle modes later
+				# match () 
+				
+				new_track_count += AnimTrackConvert.convert_track_to_bezier(animation, idx, handle_mode, new_track_count)
+				
+				var reset_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
+				if reset_idx > 0:
+					new_reset_track_count += AnimTrackConvert.convert_track_to_bezier(reset_animation, idx, handle_mode, new_reset_track_count)
+			it = it.get_next()
 		
-		var path: NodePath = animation.track_get_path(i)
-		var node: Node = null
-		
-		if root:
-			node = root.get_node_or_null(path)
-		
-		var text: String
-		# ICON STUFF TODO
-		# PATH STUFF TODO
-		
-		var track_type: String
-		match animation.track_get_type(i):
-			Animation.TYPE_POSITION_3D:
-				track_type = "Position"
-			Animation.TYPE_ROTATION_3D:
-				track_type = "Rotation"
-			Animation.TYPE_SCALE_3D:
-				track_type = "Scale"
-			Animation.TYPE_BLEND_SHAPE:
-				track_type = "BlendShape"
-			Animation.TYPE_METHOD:
-				continue
-			Animation.TYPE_BEZIER:
-				continue
-			Animation.TYPE_AUDIO:
-				continue
-			Animation.TYPE_ANIMATION:
-				continue
-		
-		if !track_type.is_empty():
-			text += track_type
-		
-		var it: TreeItem = track_convert_select.create_item(troot)
-		it.set_editable(0, true)
-		it.set_selectable(0, true)
-		it.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
-		# TODO set icon
-		it.set_text(0, text)
-		# TODO set meta data
+		it = tree_root.get_child(-1)
+		while(it):
+			var md: Dictionary = it.get_metadata(0)
+			var idx: int = md["track_idx"]
+			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
+				animation.remove_track(idx)
+			it = it.get_prev()
 	
-	return track_convert_select
-
+	#var ur = get_undo_redo()
+	#
+	#ur.create_action("Convert animation to Bezier")
+	#
+	#ur.add_undo_method(lib, "add_animation", anim_name, player.get_animation(anim_name))
+	#ur.add_do_method(lib, "add_animation", anim_name, animation)
+#
+	#ur.add_undo_method(reset_lib, "add_animation", StringName("RESET"), player.get_animation(StringName("RESET")))
+	#ur.add_do_method(reset_lib, "add_animation", StringName("RESET"), reset_animation)
+	#
+	#ur.commit_action()
 
 func _exit_tree() -> void:
 	if convert_dialogue and convert_dialogue.is_inside_tree():
@@ -169,6 +174,9 @@ func _remove_convert_option():
 	menu_popup.remove_item(menu_popup.get_item_index(TOOL_CONVERT))
 
 	menu_popup.id_pressed.disconnect(_on_menu_button_pressed)
+	
+	if convert_dialogue.confirmed.is_connected(_convert):
+		convert_dialogue.confirmed.disconnect(_convert)
 
 
 func _on_menu_button_pressed(id: int):

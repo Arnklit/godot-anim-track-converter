@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bxbff0awma12i"]
+[gd_scene load_steps=3 format=3 uid="uid://bxbff0awma12i"]
 
 [ext_resource type="Script" path="res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.gd" id="1_rkcsd"]
+[ext_resource type="Script" path="res://addons/anim_track_converter/ui/convert_dialogue/track_convert_select.gd" id="2_s13j8"]
 
 [node name="ConvertDialogue" type="AcceptDialog"]
 title = "Convert Tracks to Bezier..."
@@ -20,3 +21,4 @@ auto_translate_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 hide_root = true
+script = ExtResource("2_s13j8")
