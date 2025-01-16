@@ -1,8 +1,23 @@
-[gd_scene load_steps=5 format=3 uid="uid://b1pqvqhcg0ern"]
+[gd_scene load_steps=6 format=3 uid="uid://b1pqvqhcg0ern"]
 
 [ext_resource type="Texture2D" uid="uid://cfbpb6kd6hf7y" path="res://icon.svg" id="1_082kr"]
 
-[sub_resource type="Animation" id="Animation_3as7w"]
+[sub_resource type="Animation" id="Animation_hgxtf"]
+resource_name = "new_animation_2"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Icon:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.5, 1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(176, 146), Vector2(582, 483), Vector2(884, 219)]
+}
+
+[sub_resource type="Animation" id="Animation_y3b44"]
 resource_name = "new_animation"
 length = 4.0
 loop_mode = 1
@@ -18,20 +33,19 @@ tracks/0/keys = {
 "update": 0,
 "values": [Vector2(176, 146), Vector2(161, 495), Vector2(952, 113), Vector2(924, 495)]
 }
-tracks/1/type = "value"
+tracks/1/type = "bezier"
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/path = NodePath("Icon:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 1, 2.03333, 3),
-"transitions": PackedFloat32Array(1, 1, 1, 1),
-"update": 0,
-"values": [0.0, 3.20093, 4.58673, -3.13112]
+"handle_modes": PackedInt32Array(0, 0, 0, 0),
+"points": PackedFloat32Array(0, 0, 0, 0, 0, 3.20093, 0, 0, 0, 0, 4.58673, 0, 0, 0, 0, -3.13112, 0, 0, 0, 0),
+"times": PackedFloat32Array(0, 1, 2.03333, 3)
 }
 
-[sub_resource type="Animation" id="Animation_o1s1l"]
+[sub_resource type="Animation" id="Animation_jm5d1"]
 length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
@@ -57,11 +71,23 @@ tracks/1/keys = {
 "update": 0,
 "values": [0.0]
 }
+tracks/2/type = "bezier"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Icon:rotation")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"handle_modes": PackedInt32Array(0),
+"points": PackedFloat32Array(0, 0, 0, 0, 0),
+"times": PackedFloat32Array(0)
+}
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_v8jt5"]
 _data = {
-"RESET": SubResource("Animation_o1s1l"),
-"new_animation": SubResource("Animation_3as7w")
+"RESET": SubResource("Animation_jm5d1"),
+"new_animation": SubResource("Animation_y3b44"),
+"new_animation_2": SubResource("Animation_hgxtf")
 }
 
 [node name="NewTestScene" type="Node2D"]

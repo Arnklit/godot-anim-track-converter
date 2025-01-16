@@ -31,11 +31,21 @@ func _pop_up_convert() -> void:
 		convert_dialogue.confirmed.connect(_convert)
 
 
+func _get_animation_reference_count(path: NodePath, lib: AnimationLibrary) -> int:
+	var counter := 0
+	for anim_name in lib.get_animation_list():
+		var anim := lib.get_animation(anim_name)
+		for i in anim.get_track_count():
+			if path == anim.track_get_path(i):
+				counter += 1
+	
+	return counter
+
+
 func _convert() -> void:
 	# no undo redo for now
 	var player : AnimationPlayer = _last_anim_player
 	
-	## REDO UNDO by making a copy of these instead and assigning them with an undo redo action
 	var anim_name = player.assigned_animation
 	
 	var lib := player.get_animation_library(player.find_animation_library(player.get_animation(anim_name)))
@@ -46,8 +56,10 @@ func _convert() -> void:
 	
 	var tree_root : TreeItem = convert_dialogue.track_convert_select.get_root()
 	if tree_root:
+		
 		var new_track_count := animation.get_track_count()
 		var new_reset_track_count := reset_animation.get_track_count()
+		
 		var it = tree_root.get_first_child()
 		while it:
 			var md: Dictionary = it.get_metadata(0)
@@ -55,18 +67,41 @@ func _convert() -> void:
 			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
 				new_track_count += AnimTrackConvert.convert_track_to_bezier(animation, idx, new_track_count)
 				var reset_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
+				print("reset_idx: ", reset_idx)
 				if reset_idx >= 0:
 					new_reset_track_count += AnimTrackConvert.convert_track_to_bezier(reset_animation, idx, new_reset_track_count)
 			it = it.get_next()
 		
+		# Go through the selected tracks in reverse and delete the orinal trakcs
+		it = tree_root.get_child(-1)
+		while(it):
+			var md: Dictionary = it.get_metadata(0)
+			var idx: int = md["track_idx"]
+			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
+				animation.remove_track(idx)
+				#var reset_anim_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
+				#reset_animation.remove_track(reset_anim_idx)
+				
+			it = it.get_prev()
+		
+		# Go through the selected tracks in reverse again and delete the original reset tracks, 
+		# if there are no longer any other animations using them
 		it = tree_root.get_child(-1)
 		while(it):
 			var md: Dictionary = it.get_metadata(0)
 			var idx: int = md["track_idx"]
 			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
 				var reset_anim_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
-				animation.remove_track(idx)
-				reset_animation.remove_track(reset_anim_idx)
+				
+				var path = animation.track_get_path(idx)
+				var users_in_lib = _get_animation_reference_count(path, lib)
+				print("path")
+				print(path)
+				print("users in lib")
+				print(users_in_lib)
+				
+				#reset_animation.remove_track(reset_anim_idx)
+				
 				
 			it = it.get_prev()
 	

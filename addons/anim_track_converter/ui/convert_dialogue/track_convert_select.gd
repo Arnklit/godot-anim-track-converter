@@ -5,22 +5,11 @@ const TrackConverter := preload("res://addons/anim_track_converter/lib/anim_trac
 
 var _editor_plugin: EditorPlugin
 var _gui: Control
-#var _root: Node
+
 
 func init(editor_plugin: EditorPlugin):
 	_editor_plugin = editor_plugin
 	_gui = editor_plugin.get_editor_interface().get_base_control()
-	_editor_plugin.scene_changed.connect(_scene_changed)
-
-
-func _exit_tree() -> void:
-	if _editor_plugin and _editor_plugin.scene_changed.is_connected(_scene_changed):
-		_editor_plugin.scene_changed.disconnect(_scene_changed)
-
-
-func _scene_changed(scne_root: Node) -> void:
-	pass
-	#_root = scne_root
 
 
 func generate_track_list(animation_player: AnimationPlayer) -> void:
@@ -92,7 +81,7 @@ func generate_track_list(animation_player: AnimationPlayer) -> void:
 		it.set_selectable(0, true)
 		it.set_cell_mode(0, TreeItem.CELL_MODE_CHECK)
 		it.set_icon(0, icon)
-		it.set_text(0, text) # text string is empty
+		it.set_text(0, text)
 		var md := {}
 		md["track_idx"] = i
 		md["path"] = path
