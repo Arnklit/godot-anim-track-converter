@@ -11,7 +11,7 @@ func _init(editor_plugin: EditorPlugin) -> void:
 	_undo_redo = editor_plugin.get_undo_redo()
 
 
-static func convert_track_to_bezier(p_anim: Animation, p_index: int, p_mode: int, p_insert_at: int) -> int:
+static func convert_track_to_bezier(p_anim: Animation, p_index: int, p_insert_at: int) -> int:
 	if (p_insert_at < 0):
 		p_insert_at = p_anim.get_track_count()
 
@@ -41,13 +41,12 @@ static func convert_track_to_bezier(p_anim: Animation, p_index: int, p_mode: int
 		for j in key_count:
 			var key_time: float = p_anim.track_get_key_time(p_index, j)
 			var key_value = p_anim.track_get_key_value(p_index, j)
+			print("i is: " + str(i) + " , j is: " + str(j))
+			print("subindex is:")
+			print(subindex)
 			var key_sub_value = key_value if subindex.is_empty() else key_value[i]
 			p_anim.bezier_track_insert_key(new_track_index, key_time, key_sub_value, Vector2(0.0, 0.0), Vector2(0.0, 0.0))
 		
-		### THIS DOES NOT APPEAR TO BE EXPOSED IN GSCRIPT, I CAN PROBABLY COPY IT OVER IF NEEDED OR MAKE A PR TO EXPOSE IT
-		#for j in key_count:
-		#	undo_redo->add_do_method(this, "_bezier_track_set_key_handle_mode", p_anim, new_track_index, j, p_mode, Animation::HANDLE_SET_MODE_AUTO);
-	
 	return subindices.size();
 
 

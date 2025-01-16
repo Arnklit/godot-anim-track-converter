@@ -5,7 +5,7 @@ const TrackConverter := preload("res://addons/anim_track_converter/lib/anim_trac
 
 var _editor_plugin: EditorPlugin
 var _gui: Control
-var _root: Node
+#var _root: Node
 
 func init(editor_plugin: EditorPlugin):
 	_editor_plugin = editor_plugin
@@ -19,13 +19,16 @@ func _exit_tree() -> void:
 
 
 func _scene_changed(scne_root: Node) -> void:
-	_root = scne_root
+	pass
+	#_root = scne_root
 
 
-func generate_track_list(animation: Animation, animation_player: AnimationPlayer) -> void:
+func generate_track_list(animation_player: AnimationPlayer) -> void:
 	
-	#var root: Node = get_node(animation_player.root_node) ### EHHH I DON'T KNOW IF THAT'S RIGHT
-		
+	var animation := animation_player.get_animation(animation_player.assigned_animation)
+	
+	var root: Node = animation_player.get_node(animation_player.root_node)
+	
 	var troot: TreeItem = create_item()
 	
 	for i in animation.get_track_count():
@@ -34,8 +37,9 @@ func generate_track_list(animation: Animation, animation_player: AnimationPlayer
 		var path: NodePath = animation.track_get_path(i)
 		var node: Node = null
 		
-		if _root:
-			node = _root.get_node_or_null(path)
+		if root:
+			print(path)
+			node = root.get_node_or_null(path)
 		
 		var text: String
 		

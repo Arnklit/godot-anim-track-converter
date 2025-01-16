@@ -1,4 +1,7 @@
 # Utility class for parsing and hacking the editor
+# This is mostly take from pocchi the dev's great animation refactor addon
+# https://github.com/poohcom1/godot-animation-player-refactor
+# Copyright (c) 2023 Pupass Chandanamattha
 
 ## Find menu button to add option to
 static func find_edit_menu_button(node: Node) -> MenuButton:
@@ -28,7 +31,6 @@ static func find_editor_control_with_class( base: Control, p_class_name: StringN
 			return found
 		
 	return null
-
 
 
 # Finds the active animation player (either pinned or selected)

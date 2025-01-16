@@ -14,13 +14,6 @@ var _last_anim_player: AnimationPlayer
 const SCENE_TREE_IDX := 0
 var _scene_tree: Tree
 
-enum {
-		HANDLE_MODE_FREE,
-		HANDLE_MODE_LINEAR,
-		HANDLE_MODE_BALANCED,
-		HANDLE_MODE_MIRRORED,
-}
-
 func _enter_tree() -> void:
 	# Create dialogue
 	convert_dialogue = load("res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.tscn").instantiate()
@@ -33,7 +26,7 @@ func _enter_tree() -> void:
 func _pop_up_convert() -> void:
 	convert_dialogue.popup_centered()
 	convert_dialogue.track_convert_select.clear()
-	convert_dialogue.track_convert_select.generate_track_list(get_anim_player().get_animation(get_anim_player().assigned_animation), get_anim_player())
+	convert_dialogue.track_convert_select.generate_track_list(get_anim_player())
 	if not convert_dialogue.confirmed.is_connected(_convert):
 		convert_dialogue.confirmed.connect(_convert)
 
@@ -48,8 +41,8 @@ func _convert() -> void:
 	var lib := player.get_animation_library(player.find_animation_library(player.get_animation(anim_name)))
 	var reset_lib := player.get_animation_library(player.find_animation_library(player.get_animation(StringName("RESET"))))
 	
-	var animation: Animation = player.get_animation(anim_name)#.duplicate()
-	var reset_animation: Animation = player.get_animation(StringName("RESET"))#.duplicate()
+	var animation: Animation = player.get_animation(anim_name).duplicate()
+	var reset_animation: Animation = player.get_animation(StringName("RESET")).duplicate()
 	
 	var tree_root : TreeItem = convert_dialogue.track_convert_select.get_root()
 	if tree_root:
@@ -60,16 +53,10 @@ func _convert() -> void:
 			var md: Dictionary = it.get_metadata(0)
 			var idx: int = md["track_idx"]
 			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
-				var handle_mode = HANDLE_MODE_LINEAR
-				
-				## we need to add the options for the different handle modes later
-				# match () 
-				
-				new_track_count += AnimTrackConvert.convert_track_to_bezier(animation, idx, handle_mode, new_track_count)
-				
+				new_track_count += AnimTrackConvert.convert_track_to_bezier(animation, idx, new_track_count)
 				var reset_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
-				if reset_idx > 0:
-					new_reset_track_count += AnimTrackConvert.convert_track_to_bezier(reset_animation, idx, handle_mode, new_reset_track_count)
+				if reset_idx >= 0:
+					new_reset_track_count += AnimTrackConvert.convert_track_to_bezier(reset_animation, idx, new_reset_track_count)
 			it = it.get_next()
 		
 		it = tree_root.get_child(-1)
@@ -77,20 +64,23 @@ func _convert() -> void:
 			var md: Dictionary = it.get_metadata(0)
 			var idx: int = md["track_idx"]
 			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
+				var reset_anim_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
 				animation.remove_track(idx)
+				reset_animation.remove_track(reset_anim_idx)
+				
 			it = it.get_prev()
 	
-	#var ur = get_undo_redo()
-	#
-	#ur.create_action("Convert animation to Bezier")
-	#
-	#ur.add_undo_method(lib, "add_animation", anim_name, player.get_animation(anim_name))
-	#ur.add_do_method(lib, "add_animation", anim_name, animation)
+	var ur = get_undo_redo()
+	
+	ur.create_action("Convert animation to Bezier")
+	
+	ur.add_undo_method(lib, "add_animation", anim_name, player.get_animation(anim_name))
+	ur.add_do_method(lib, "add_animation", anim_name, animation)
 #
-	#ur.add_undo_method(reset_lib, "add_animation", StringName("RESET"), player.get_animation(StringName("RESET")))
-	#ur.add_do_method(reset_lib, "add_animation", StringName("RESET"), reset_animation)
-	#
-	#ur.commit_action()
+	ur.add_undo_method(reset_lib, "add_animation", StringName("RESET"), player.get_animation(StringName("RESET")))
+	ur.add_do_method(reset_lib, "add_animation", StringName("RESET"), reset_animation)
+	
+	ur.commit_action()
 
 func _exit_tree() -> void:
 	if convert_dialogue and convert_dialogue.is_inside_tree():
