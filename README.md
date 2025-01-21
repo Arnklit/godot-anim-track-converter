@@ -11,4 +11,4 @@ An addon that allows you to convert value tracks to bezier tracks in animations.
 
 ## Current Limitations
 * Currently only handles a single animation library. I will implement multi animation library support soon.
-* Currently only converts the animations into linear keys. You can easily select all the keys after and auto balance them, but some built in logix for this or to take the keys' easing values into account might be added in the future.
+* Currently only converts the animations into linear keys. You can easily select all the keys after and auto balance them, but some built in logic for this or to take the keys' easing values into account might be added in the future.
