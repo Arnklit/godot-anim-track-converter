@@ -37,10 +37,7 @@ func _get_animation_track_reference_count(path: NodePath, lib: AnimationLibrary)
 		var anim := lib.get_animation(anim_name)
 		for i in anim.get_track_count():
 			if path == anim.track_get_path(i) and anim.track_get_type(i) == Animation.TrackType.TYPE_VALUE:
-				print("anim name: ", anim_name, ", track: ", i, " path: ", path)
 				counter += 1
-	
-	print("counter is: ", counter)
 	return counter
 
 
@@ -63,6 +60,8 @@ func _convert() -> void:
 		var new_track_count := animation.get_track_count()
 		var new_reset_track_count := reset_animation.get_track_count()
 		
+		# Loop through the selected tracks create new converted copies of the tracks and thier
+		# reset tracks.
 		var it = tree_root.get_first_child()
 		while it:
 			var md: Dictionary = it.get_metadata(0)
@@ -70,45 +69,37 @@ func _convert() -> void:
 			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
 				var reset_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
 				new_track_count += AnimTrackConvert.convert_track_to_bezier(animation, idx, new_track_count)
-				print("reset_idx: ", reset_idx)
 				if reset_idx >= 0:
 					new_reset_track_count += AnimTrackConvert.convert_track_to_bezier(reset_animation, reset_idx, new_reset_track_count)
 			it = it.get_next()
 		
 		var unused_reset_tracks: Array[NodePath]
-		# Go through the selected tracks in reverse and delete the orinal trakcs
+		
+		# Go through the selected tracks in reverse and delete the orinal trakcs (but not the reset
+		# tracks yet)
+		# We add any deleted tracks to a list
 		it = tree_root.get_child(-1)
 		while(it):
 			var md: Dictionary = it.get_metadata(0)
 			var idx: int = md["track_idx"]
 			if it.is_checked(0) and idx >= 0 and idx < animation.get_track_count():
-				
 				unused_reset_tracks.append(animation.track_get_path(idx))
 				animation.remove_track(idx)
-				
-				
-				#var reset_anim_idx = reset_animation.find_track(animation.track_get_path(idx), animation.track_get_type(idx))
-				# we have removed the track from the animation, so there should only be 1 reference in the lib
-				#reset_animation.remove_track(reset_anim_idx)
-				
 			it = it.get_prev()
 		
-		print("unused_reset_tracks before")
-		print(unused_reset_tracks)
-		
-		var i := unused_reset_tracks.size() - 1
-		while(i >= 0):
-			print("one")
-			# it's less than or uqual to 2 because the animation still exists in the orignal lib
-			# which we are using to count.
-			if _get_animation_track_reference_count(unused_reset_tracks[i], lib) <= 2:
-				print("two")
+		# We iterate through the list of deleted tracks and remove any that still have users
+		# in other animations, meaning they should not be deleted from the reset animation
+		for i in range(unused_reset_tracks.size() -1, -1, -1) :
+			if _get_animation_track_reference_count(unused_reset_tracks[i], lib) > 2:
 				unused_reset_tracks.remove_at(i)
-			i -= 1
 		
-		print("unused_reset_tracks after")
-		print(unused_reset_tracks)
-		
+		# We iterate through the remaining list and delete the reset tracks it contains.
+		for i in range(reset_animation.get_track_count() -1, -1, -1):
+			if reset_animation.track_get_type(i) == Animation.TYPE_VALUE:
+				if unused_reset_tracks.has(reset_animation.track_get_path(i)):
+					reset_animation.remove_track(i)
+	
+	
 	var ur = get_undo_redo()
 	
 	ur.create_action("Convert animation to Bezier")

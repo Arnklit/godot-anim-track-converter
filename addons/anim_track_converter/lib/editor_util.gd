@@ -5,7 +5,6 @@
 
 ## Find menu button to add option to
 static func find_edit_menu_button(node: Node) -> MenuButton:
-	print("find_edit_menu_button")
 	var animation_editor := find_editor_control_with_class(node, "AnimationPlayerEditor")
 	if animation_editor:
 		return find_editor_control_with_class(

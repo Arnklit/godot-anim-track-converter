@@ -14,7 +14,20 @@ func init(editor_plugin: EditorPlugin):
 
 func generate_track_list(animation_player: AnimationPlayer) -> void:
 	
+	var warning_label = get_parent().get_node("WarningLabel")
+	
+	warning_label.text = ""
+	
+	if animation_player.assigned_animation == "RESET":
+		warning_label.text = """Reset tracks cannot be converted manually,
+		they will be automatically converted as needed."""
+		return
+	
 	var animation := animation_player.get_animation(animation_player.assigned_animation)
+	
+	if animation.get_track_count() == 0:
+		warning_label.text = "No Value Tracks in animation."
+		return
 	
 	var root: Node = animation_player.get_node(animation_player.root_node)
 	
