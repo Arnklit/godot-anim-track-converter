@@ -42,14 +42,11 @@ func _get_animation_track_reference_count(path: NodePath, lib: AnimationLibrary)
 
 
 func _convert() -> void:
-	# no undo redo for now
 	var player : AnimationPlayer = _last_anim_player
-	
 	var anim_name = player.assigned_animation
 	
 	var lib := player.get_animation_library(player.find_animation_library(player.get_animation(anim_name)))
-	## TODO - MAKE THIS WORK WITH ANIMATION LIBRARIES AS WELL BY GETTING THE RESET LIB ETC.
-	#var reset_lib := player.get_animation_library(player.find_animation_library(player.get_animation(StringName("RESET"))))
+	var reset_lib := player.get_animation_library(player.find_animation_library(player.get_animation(StringName("RESET"))))
 	
 	var animation: Animation = player.get_animation(anim_name).duplicate()
 	var reset_animation: Animation = player.get_animation(StringName("RESET")).duplicate()
@@ -104,13 +101,14 @@ func _convert() -> void:
 	
 	ur.create_action("Convert animation to Bezier")
 	
-	ur.add_undo_method(lib, "add_animation", anim_name, player.get_animation(anim_name))
-	ur.add_do_method(lib, "add_animation", anim_name, animation)
+	ur.add_undo_method(lib, "add_animation", anim_name.split("/")[-1], player.get_animation(anim_name))
+	ur.add_do_method(lib, "add_animation", anim_name.split("/")[-1], animation)
 #
-	ur.add_undo_method(lib, "add_animation", StringName("RESET"), player.get_animation(StringName("RESET")))
-	ur.add_do_method(lib, "add_animation", StringName("RESET"), reset_animation)
+	ur.add_undo_method(reset_lib, "add_animation", StringName("RESET"), player.get_animation(StringName("RESET")))
+	ur.add_do_method(reset_lib, "add_animation", StringName("RESET"), reset_animation)
 	
 	ur.commit_action()
+
 
 func _exit_tree() -> void:
 	if convert_dialogue and convert_dialogue.is_inside_tree():
@@ -175,7 +173,7 @@ func _add_convert_option():
 	# Add convert item
 	edit_popup.add_icon_item(
 		base_control.get_theme_icon(&"Reload", &"EditorIcons"), 
-		"Convert",
+		"Convert Value Track to Bezier Track...",
 		TOOL_CONVERT,
 	)
 	

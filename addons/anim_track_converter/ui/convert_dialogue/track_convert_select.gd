@@ -40,7 +40,6 @@ func generate_track_list(animation_player: AnimationPlayer) -> void:
 		var node: Node = null
 		
 		if root:
-			print(path)
 			node = root.get_node_or_null(path)
 		
 		var text: String

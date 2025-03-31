@@ -1,10 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://bxbff0awma12i"]
 
-[ext_resource type="Script" path="res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.gd" id="1_rkcsd"]
-[ext_resource type="Script" path="res://addons/anim_track_converter/ui/convert_dialogue/track_convert_select.gd" id="2_s13j8"]
+[ext_resource type="Script" uid="uid://ivpl402sjxiw" path="res://addons/anim_track_converter/ui/convert_dialogue/convert_dialogue.gd" id="1_rkcsd"]
+[ext_resource type="Script" uid="uid://cris7i7it6f7v" path="res://addons/anim_track_converter/ui/convert_dialogue/track_convert_select.gd" id="2_s13j8"]
 
 [node name="ConvertDialogue" type="AcceptDialog"]
-title = "Convert Tracks to Bezier..."
+title = "Convert Value Tracks to Bezier Tracks..."
 position = Vector2i(0, 36)
 size = Vector2i(726, 400)
 ok_button_text = "Convert"
