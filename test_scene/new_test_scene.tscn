@@ -1,6 +1,6 @@
 [gd_scene load_steps=9 format=3 uid="uid://b1pqvqhcg0ern"]
 
-[ext_resource type="Texture2D" uid="uid://cfbpb6kd6hf7y" path="res://icon.svg" id="1_082kr"]
+[ext_resource type="Texture2D" uid="uid://dt6j266tiyf70" path="res://icon.png" id="1_082kr"]
 
 [sub_resource type="Animation" id="Animation_y3b44"]
 resource_name = "new_animation"
